@@ -1,0 +1,30 @@
+version: '3.2'
+services:
+    nginx:
+        container_name: ${PROJECT_NAME}_nginx
+        image: ${PROJECT_NAME}_nginx
+        build: nginx
+        volumes:
+            - "web:/web/"
+        ports:
+            - "80:80"
+        environment:
+            - NGINX_HOST=localhost
+            - FPM_HOST=php
+        command: /bin/bash -c "envsubst '$$NGINX_HOST,$$FPM_HOST' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+        restart: always
+        links:
+            - php
+
+    php:
+        container_name: ${PROJECT_NAME}_php
+        image: ${PROJECT_NAME}_php
+        build:
+            context: php
+            args:
+                uid: ${APP_USER_ID}
+                gid: ${APP_GROUP_ID}
+        volumes:
+            - "app:/app/"
+        links:
+            - db

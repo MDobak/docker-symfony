@@ -1,0 +1,16 @@
+version: '3.2'
+
+volumes:
+    app:
+        driver: local
+        driver_opts:
+            type: nfs
+            o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
+            device: ":${PWD}/${SYMFONY_APP_PATH}"
+
+    web:
+        driver: local
+        driver_opts:
+            type: nfs
+            o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
+            device: ":${PWD}/${WEB_PATH}"

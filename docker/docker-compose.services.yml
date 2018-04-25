@@ -1,0 +1,9 @@
+version: '3.2'
+services:
+    db:
+        container_name: ${PROJECT_NAME}_db
+        image: mysql:5.7
+        env_file:
+            - .db.env
+        volumes:
+            - "${DATA_PATH}/db/mysql:/var/lib/mysql:delegated"
