@@ -10,10 +10,10 @@ cd $(cd -P -- "$(dirname -- "$0")" && pwd -P)/docker
 
 if [ "$(uname)" == "Darwin" ]; then
     OS_TYPE="mac"
-    DEFAULT_ENV="dev-macos.env"
+    DEFAULT_ENV=".env-macos.dev"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     OS_TYPE="linux"
-    DEFAULT_ENV="dev-linux.env"
+    DEFAULT_ENV=".env-linux.dev"
 else
     echo "Unsupported OS!"
     exit -1
@@ -32,12 +32,8 @@ eval $(cat .env \
     | grep -v "#" \
     | sed -E 's/^([^=]*)=(.*)$/export \1="\2"/p')
 
-# -----------------------------------------------------------------------------
-# Parse global arguments
-# -----------------------------------------------------------------------------
-
 MODE=$1
-shift
+[[ -z $MODE ]] || shift
 
 # -----------------------------------------------------------------------------
 # Check dependencies
@@ -77,9 +73,9 @@ function setup_macos_nfs()
         return 0
     fi
 
-    ask "Do you want setup NFS exports on your machine?"
-
+    ask "Do you want setup NFS exports on your machine? Answer 'no' if you have NFS already configured on your machine."
     if [[ $? != "0" ]]; then
+        touch .nfs-configured
         return 0
     fi
 
@@ -88,7 +84,6 @@ function setup_macos_nfs()
 
     NFS_EXPORT_LINE="/Users -alldirs -mapall=${USER_ID}:${GROUP_ID} localhost"
     NFS_EXPORT_FILE=/etc/exports
-
     NFS_CONF_LINE="nfs.server.mount.require_resv_port = 0"
     NFS_CONF_FILE=/etc/nfs.conf
 
@@ -104,7 +99,7 @@ function setup_macos_nfs()
         osascript -e 'quit app "Docker"'
 
         grep -qF -- "$NFS_EXPORT_LINE" "$NFS_EXPORT_FILE" || sudo echo "$NFS_EXPORT_LINE" | sudo tee -a $NFS_EXPORT_FILE > /dev/null
-        grep -qF -- "$NFS_CONF_LINE" "$NFS_CONF_FILE" || sudo echo "$NFS_CONF_LINE" | sudo tee -a $NFS_CONF_FILE > /dev/null
+        grep -qF -- "$NFS_CONF_LINE" "$NFS_CONF_FILE"     || sudo echo "$NFS_CONF_LINE"   | sudo tee -a $NFS_CONF_FILE > /dev/null
 
         sudo nfsd restart
         open -a Docker
@@ -147,7 +142,7 @@ function cmd_clean()
     for ID in `docker volume ls -q --filter "name=${PROJECT_NAME}_"`; do docker volume rm -f ${ID}; done
 }
 
-function cmd_bash()
+function cmd_shell()
 {
     ROOT=0
     USER=app
@@ -158,30 +153,18 @@ function cmd_bash()
         if [[ $ARG == "-u" ]] || [[ $ARG == "--user" ]]; then
             shift
             USER=$1
+        elif [[ $ARG == "-s" ]] || [[ $ARG == "--shell" ]]; then
+            shift
+            SHELL=$1
         else
             break
         fi
 
         shift
     done
+    SERVICE=$1
 
-    APP=$1
-    shift
-
-    cmd_compose exec -u $USER $APP $SHELL
-}
-
-function cmd_create_project()
-{
-    mkdir -p $SYMFONY_APP_PATH
-    mkdir -p $DATA_PATH
-
-    cmd_stop
-    cmd_start php
-    cmd_compose exec -u app php composer create-project "$@"
-
-    mkdir -p $WEB_PATH
-    cmd_start
+    cmd_compose exec -u $USER $SERVICE $SHELL
 }
 
 # -----------------------------------------------------------------------------
@@ -196,10 +179,31 @@ elif [[ ${MODE} == "stop" ]]; then
     cmd_stop "$@"
 elif [[ ${MODE} == "clean" ]]; then
     cmd_clean
-elif [[ ${MODE} == "bash" ]]; then
-    cmd_bash "$@"
-elif [[ ${MODE} == "create-project" ]]; then
-    cmd_create_project "$@"
+elif [[ ${MODE} == "shell" ]]; then
+    cmd_shell "$@"
 else
-    echo "Usage: $0"
+    if [[ ${MODE} == "help" ]] && [[ $1 == "compose" ]]; then
+        echo "Usage: $0 compose [ARGS...]"
+    elif [[ ${MODE} == "help" ]] && [[ $1 == "start" ]]; then
+        echo "Usage: $0 start [SERVICES...]"
+    elif [[ ${MODE} == "help" ]] && [[ $1 == "stop" ]]; then
+        echo "Usage: $0 stop [SERVICES...]"
+    elif [[ ${MODE} == "help" ]] && [[ $1 == "shell" ]]; then
+        echo "Usage: $0 shell [options] SERVICE"
+        echo ""
+        echo "Options:"
+        echo "  -u, --user    User to log in (default: app)"
+        echo "  -s, --shell   Shell to use (default: bash)"
+    elif [[ ${MODE} == "help" ]] && [[ $1 == "clean" ]]; then
+        echo "Usage: $0 clean"
+    else
+        echo "Usage: $0 compose|start|stop|clean|shell"
+        echo ""
+        echo "Commands:"
+        echo "  compose     Wrapper for docker-compose commands"
+        echo "  start       Starts all or selected Docker containers"
+        echo "  stop        Stops all or selected Docker containers"
+        echo "  shell       Opens container's shell"
+        echo "  clean       Eemoves all images, containers and volumes associated with your project"
+    fi
 fi
