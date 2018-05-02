@@ -58,9 +58,11 @@ function ask()
     printf "$@"
     read -p " (y/n) " -n 1 -r
     echo
-    [[ $REPLY =~ ^[Yy]$ ]]
-
-    return $?
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 function setup_macos_nfs()
@@ -73,8 +75,9 @@ function setup_macos_nfs()
         return 0
     fi
 
-    ask "Do you want setup NFS exports on your machine? Answer 'no' if you have NFS already configured on your machine."
-    if [[ $? != "0" ]]; then
+    ask "Do you want setup NFS exports on your machine? Answer 'no' if you have NFS already configured on your machine." || ret=$?
+    echo $ret
+    if [[ $ret == "1" ]]; then
         touch .nfs-configured
         return 0
     fi
@@ -214,6 +217,6 @@ else
         echo "  stop        Stops all or selected Docker containers"
         echo "  install     Installs application"
         echo "  shell       Opens container's shell"
-        echo "  clean       Eemoves all images, containers and volumes associated with your project"
+        echo "  clean       Removes all images, containers and volumes associated with your project"
     fi
 fi
