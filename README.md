@@ -46,5 +46,6 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
  * `./console start [SERVICES...]` - starts all or selected Docker containers
  * `./console stop [SERVICES...]` - stops all or selected Docker containers
  * `./console compose [ARGS...]` - wrapper for docker-compose commands
+ * `./console install` - installs application
  * `./console shell [--user USER] [--shell SHELL] SERVICE` - opens container's shell
  * `./console clean` - removes all images, containers and volumes associated with your project
