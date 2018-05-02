@@ -1,36 +1,50 @@
-# Docker + NFS + Symfony
-Sample Docker configuration for Symfony 3 and Symfony 4 projects for Linux and Mac OS machines with NFS
-based volumes for Mac OS.
+# Docker + Symfony
+Docker boilerplate configuration for Symfony projects with fast NFS volumes on MacOS.
+
+## Features
+ * Supports Linux and MacOS
+ * Automatically configures NFS exports on MacOS if needed
+ * No other dependencies required than Docker
+ * Requires no configuration for developers
+ * Easy to use for team members not familiar with Docker 
+ * Docker images contains cron, composer and supervisord (check out [https://github.com/MDobak/php-common-stack](https://github.com/MDobak/php-common-stack) for more)
 
 ## Contents
  * [Requirements](#requirements)
  * [Installation](#installation)
-   * [New project](#new-project)
-   * [Existing project](#existing-project)
+   * [Creating new project](#creating-new-project)
+   * [Migrating existing project](#migrating-existing-project)
  * [Usage](#usage)
 
 ## Requirements
- * Docker Engine 1.13.0 or never
- * Docker Compose 1.10.0 or never
- * Docker For Mac 18.03.0-ce-mac60 or never (for Mac OS only)
- * El Capitan 10.11 and newer (for Mac OS only)
+ * Docker Engine 1.13.0+
+ * Docker Compose 1.10.0+
+ * Docker For Mac 18.03.0-ce-mac60+ (_for Mac OS only_)
+ * El Capitan 10.11+ (_for Mac OS only_)
 
 ## Installation
-Depending on your operating system, create `.env` file based on `.env-linux.dev` or `.env-macos.dev` file.
-Change `PROJECT_NAME` variable if you working on multiple projects to avoid name collisions. You can also
-change other variables depending on your need. On Linux it is important to set user and group ID
-in `APP_USER_ID` and `APP_GROUP_ID` variables to the same IDs as user you working on.
+### Creating new project
+ 1. Change the `PROJECT_NAME` variable in both `.env-linux.dev` and `.env-macos.dev` files if you are working on multiple 
+    projects to avoid name collisions. You can also change other variables depending on your needs.
+ 2. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
+ 4. Make sure, that `SYMFONY_APP_PATH` directory exist and it's empty.
+ 3. Start **only** `php` container using `./console start php` command.
+ 4. Log in into container's shell using `./console shell php` command.
+ 5. Use composer to create new symfony project: `composer create-project symfony/symfony .`.
+ 6. Log out from container with `exit` command.
+ 7. Use `./console start` command to run other containers.
 
-### New project
-If you creating new project, use `./console create-project symfony/symfony .` command.
-
-### Existing project
-Copy all project files to desired location and set correct paths in `.env` file. By default all project files
-should be places in the `/app` directory.
+### Migrating existing project
+ 1. Change the `PROJECT_NAME` variable in both `.env-linux.dev` and `.env-macos.dev` files if you are working on multiple 
+    projects to avoid name collisions. You can also change other variables depending on your needs.
+ 2. Copy all project files to desired location. By default all project files should be placed in the `/app` directory. 
+ 3. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
+ 4. Start containers using `./console start` command.
+ 5. If necessary, you can log in into container's shell using `./console shell php` command.
 
 ## Usage
- * `./console start` - starts Docker container
- * `./console stop` - stops Docker container
- * `./console compose` - wrapper for docker-compose commands
- * `./console bash [--user USER] [--app APP] [--shell SHELL]` - opens container's shell
+ * `./console start [SERVICES...]` - starts all or selected Docker containers
+ * `./console stop [SERVICES...]` - stops all or selected Docker containers
+ * `./console compose [ARGS...]` - wrapper for docker-compose commands
+ * `./console shell [--user USER] [--shell SHELL] SERVICE` - opens container's shell
  * `./console clean` - removes all images, containers and volumes associated with your project
