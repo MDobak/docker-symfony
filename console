@@ -76,7 +76,7 @@ function setup_macos_nfs()
     fi
 
     ask "Do you want setup NFS exports on your machine? Answer 'no' if you have NFS already configured on your machine." || ret=$?
-    echo $ret
+
     if [[ $ret == "1" ]]; then
         touch .nfs-configured
         return 0
@@ -126,6 +126,10 @@ function cmd_compose()
 
 function cmd_start()
 {
+    mkdir -p $SYMFONY_APP_PATH
+    mkdir -p $WEB_PATH
+    mkdir -p $DATA_PATH
+
     setup_macos_nfs
     cmd_compose up -d "$@"
 }

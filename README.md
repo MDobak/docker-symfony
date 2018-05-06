@@ -14,6 +14,7 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
  * [Installation](#installation)
    * [Creating new project](#creating-new-project)
    * [Migrating existing project](#migrating-existing-project)
+ * [File permissions on MacOS](#file-permissions-on-macos)  
  * [Usage](#usage)
 
 ## Requirements
@@ -27,12 +28,12 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
  1. Change the `PROJECT_NAME` variable in both `.env-linux.dev` and `.env-macos.dev` files if you are working on multiple 
     projects to avoid name collisions. You can also change other variables depending on your needs.
  2. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
- 4. Make sure, that `SYMFONY_APP_PATH` directory exist and it's empty.
  3. Start **only** `php` container using `./console start php` command.
- 4. Log in into container's shell using `./console shell php` command.
- 5. Use composer to create new symfony project: `composer create-project symfony/symfony .`.
- 6. Log out from container with `exit` command.
- 7. Use `./console start` command to run other containers.
+ 4. Make sure, that `SYMFONY_APP_PATH` directory exist and it's empty.
+ 5. Log in into container's shell using `./console shell php` command.
+ 6. Use composer to create new symfony project: `composer create-project symfony/symfony .`.
+ 7. Log out from container with `exit` command.
+ 8. Use `./console start` command to run other containers.
 
 ### Migrating existing project
  1. Change the `PROJECT_NAME` variable in both `.env-linux.dev` and `.env-macos.dev` files if you are working on multiple 
@@ -41,6 +42,11 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
  3. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
  4. Start containers using `./console start` command.
  5. If necessary, you can log in into container's shell using `./console shell php` command.
+
+## File permissions on MacOS
+On MacOS Docker uses NFS for volume mounting. By default NFS exports are mounted with the UID and GID of the currently 
+running user on the Mac and it is not possible to change permissions and ownership of these files. Although, despite of
+UID and GID your containers will have access to these files.
 
 ## Usage
  * `./console start [SERVICES...]` - starts all or selected Docker containers
