@@ -29,7 +29,7 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
     projects to avoid name collisions. You can also change other variables depending on your needs.
  2. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
  3. Start **only** `php` container using `./console start php` command.
- 4. Make sure, that `SYMFONY_APP_PATH` directory exist and it's empty.
+ 4. Make sure, that `APP_PATH` directory exist and it's empty.
  5. Log in into container's shell using `./console shell php` command.
  6. Use composer to create new symfony project: `composer create-project symfony/symfony .`.
  7. Log out from container with `exit` command.

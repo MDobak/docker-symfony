@@ -126,8 +126,8 @@ function cmd_compose()
 
 function cmd_start()
 {
-    mkdir -p $SYMFONY_APP_PATH
-    mkdir -p $WEB_PATH
+    mkdir -p $APP_PATH
+    mkdir -p $APP_PATH/$WEB_PATH
     mkdir -p $DATA_PATH
 
     setup_macos_nfs

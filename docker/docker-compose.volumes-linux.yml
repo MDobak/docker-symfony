@@ -5,10 +5,10 @@ volumes:
         driver_opts:
             type: none
             o: bind
-            device: "${PWD}/${SYMFONY_APP_PATH}"
+            device: "${PWD}/${APP_PATH}"
 
     web:
         driver_opts:
             type: none
             o: bind
-            device: "${PWD}/${WEB_PATH}"
+            device: "${PWD}/${APP_PATH}/${WEB_PATH}"
