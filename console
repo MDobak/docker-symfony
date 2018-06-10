@@ -158,27 +158,37 @@ function cmd_clean()
 
 function cmd_shell()
 {
-    ROOT=0
     USER=app
-    SHELL=bash
+    SHELL=sh
     while [[ $# > 0 ]]; do
         ARG="$1"
 
         if [[ $ARG == "-u" ]] || [[ $ARG == "--user" ]]; then
             shift
             USER=$1
-        elif [[ $ARG == "-s" ]] || [[ $ARG == "--shell" ]]; then
-            shift
-            SHELL=$1
         else
             break
         fi
 
         shift
     done
-    SERVICE=$1
 
-    cmd_compose exec -u $USER $SERVICE $SHELL
+    SERVICE=$1
+    shift
+
+    if [[ -z $SERVICE ]]; then
+        echo "Missing SERVICE argument."
+
+        return 1
+    fi
+
+    if ! cmd_compose exec $SERVICE id $USER &> /dev/null; then
+        echo "User $USER do not exists. You will be logged as root."
+        USER=root
+    fi
+
+    SHELL=$(cmd_compose exec $SERVICE sh -c "which zsh bash dash ash sh | head -1 | tr '\n' ' '")
+    cmd_compose exec -u $USER -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -e TERM="$TERM" $SERVICE $SHELL
 }
 
 # -----------------------------------------------------------------------------
