@@ -14,7 +14,10 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
  * [Installation](#installation)
    * [Creating new project](#creating-new-project)
    * [Migrating existing project](#migrating-existing-project)
- * [File permissions on MacOS](#file-permissions-on-macos)  
+ * [File permissions on MacOS](#file-permissions-on-macos)
+ * [Performance tips for MacOS](#performance-tips-for-macos)
+   * [Cache directory](#cache-directory)
+   * [OpCache](#opcache)   
  * [Usage](#usage)
 
 ## Requirements
@@ -44,6 +47,47 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
 On MacOS Docker uses NFS for volume mounting. By default NFS exports are mounted with the UID and GID of the currently 
 running user on the Mac and it is not possible to change permissions and ownership of these files. Although, despite of
 UID and GID your containers will have access to these files.
+
+## Performance tips for MacOS
+### Cache directory
+Shared volumes, even with NFS can be slow so its good idea to move as much data as possible outside shared directories.
+The easiest way is to move cache to the `/tmp` directory. To do it in Symfony you need to override the
+`Kernel::getCacheDir` method in your `Kernel.php` file: 
+```php
+<?php
+// ...    
+class Kernel extends BaseKernel {
+    // ...
+    public function getCacheDir()
+    {
+        return '/tmp/symfony/'.$this->environment;
+    }
+    // ...
+}
+```
+### OpCache
+Another way to reduce filesystem calls is to use the OpCache extension. To install this extension, add to the 
+`./docker/php/Dockerfile` file following lines:
+```dockerfile
+RUN    docker-php-ext-install \
+        opcache \
+    && docker-php-ext-configure \
+        opcache \
+            --enable-opcache \
+    && docker-php-ext-enable \
+        opcache \
+    && docker-pcs-php-ext-config opcache \
+        # Fine tune below configuration to your needs:
+        opcache.memory_consumption=256 \
+        opcache.interned_strings_buffer=8 \
+        opcache.max_accelerated_files=1000000 \
+        opcache.fast_shutdown=1 \
+        opcache.enable_cli=1 \
+        opcache.enable=1 \
+        # If your app makes a lot of ajax request, it is good idea to set revalidate_freq to 2 or 3 seconds
+        opcache.revalidate_freq=0
+```
+If you already built container, you need to rebuild it using `./console compose build php` command and run it again.
 
 ## Usage
  * `./console start [SERVICES...]` - starts all or selected Docker containers
