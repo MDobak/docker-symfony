@@ -178,13 +178,16 @@ function cmd_clean()
 function cmd_shell()
 {
     USER=app
-    SHELL=sh
+    SHELL=
     while [[ $# > 0 ]]; do
         ARG="$1"
 
         if [[ $ARG == "-u" ]] || [[ $ARG == "--user" ]]; then
             shift
             USER=$1
+        elif [[ $ARG == "-s" ]] || [[ $ARG == "--shell" ]]; then
+            shift
+            SHELL=$1
         else
             break
         fi
@@ -206,7 +209,10 @@ function cmd_shell()
         USER=root
     fi
 
-    SHELL=$(cmd_compose exec $SERVICE sh -c "which zsh bash dash ash sh | head -1 | tr '\n' ' '")
+    if [[ -z $SHELL ]]; then
+        SHELL=$(cmd_compose exec $SERVICE sh -c "which zsh bash dash ash sh | head -1 | tr '\n' ' '")
+    fi
+
     cmd_compose exec -u $USER -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -e TERM="$TERM" $SERVICE $SHELL
 }
 
@@ -242,7 +248,7 @@ else
         echo ""
         echo "Options:"
         echo "  -u, --user    User to log in (default: app)"
-        echo "  -s, --shell   Shell to use (default: bash)"
+        echo "  -s, --shell   Shell to use"
     elif [[ ${MODE} == "help" ]] && [[ $1 == "clean" ]]; then
         echo "Usage: $0 clean"
     else
