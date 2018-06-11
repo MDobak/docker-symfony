@@ -146,6 +146,25 @@ function cmd_install()
     # you can put here rest of steps required to install your project
 }
 
+function cmd_create_project()
+{
+    mkdir -p $APP_PATH
+    mkdir -p $DATA_PATH
+
+    if ! [ -z "$(ls -A $APP_PATH)" ]; then
+        echo "The \$APP_PATH directory must be empty!"
+        exit 1
+    fi
+
+    mkdir -p $APP_PATH/$WEB_PATH
+    setup_macos_nfs
+    cmd_compose up -d php
+    rm -rf $APP_PATH/$WEB_PATH
+
+    cmd_compose exec -u app php composer create-project "$@" .
+    cmd_start
+}
+
 function cmd_clean()
 {
     cmd_compose down
@@ -203,6 +222,8 @@ elif [[ ${MODE} == "stop" ]]; then
     cmd_stop "$@"
 elif [[ ${MODE} == "install" ]]; then
     cmd_install
+elif [[ ${MODE} == "create-project" ]]; then
+    cmd_create_project "$@"
 elif [[ ${MODE} == "clean" ]]; then
     cmd_clean
 elif [[ ${MODE} == "shell" ]]; then
@@ -214,6 +235,8 @@ else
         echo "Usage: $0 start [SERVICES...]"
     elif [[ ${MODE} == "help" ]] && [[ $1 == "stop" ]]; then
         echo "Usage: $0 stop [SERVICES...]"
+    elif [[ ${MODE} == "help" ]] && [[ $1 == "create-project" ]]; then
+        echo "Usage: $0 create-project PACKAGE_NAME [VERSION]"
     elif [[ ${MODE} == "help" ]] && [[ $1 == "shell" ]]; then
         echo "Usage: $0 shell [options] SERVICE"
         echo ""
@@ -226,11 +249,12 @@ else
         echo "Usage: $0 compose|start|stop|clean|shell"
         echo ""
         echo "Commands:"
-        echo "  compose     Wrapper for docker-compose commands"
-        echo "  start       Starts all or selected Docker containers"
-        echo "  stop        Stops all or selected Docker containers"
-        echo "  install     Installs application"
-        echo "  shell       Opens container's shell"
-        echo "  clean       Removes all images, containers and volumes associated with your project"
+        echo "  compose        Wrapper for docker-compose commands"
+        echo "  start          Starts all or selected Docker containers"
+        echo "  stop           Stops all or selected Docker containers"
+        echo "  install        Installs application"
+        echo "  create-project Creates project using composer command"
+        echo "  shell          Opens container's shell"
+        echo "  clean          Removes all images, containers and volumes associated with your project"
     fi
 fi

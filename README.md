@@ -28,12 +28,9 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
  1. Change the `PROJECT_NAME` variable in both `.env-linux.dev` and `.env-macos.dev` files if you are working on multiple 
     projects to avoid name collisions. You can also change other variables depending on your needs.
  2. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
- 3. Start **only** `php` container using `./console start php` command.
- 4. Make sure, that `APP_PATH` directory exist and it's empty.
- 5. Log in into container's shell using `./console shell php` command.
- 6. Use composer to create new symfony project: `composer create-project symfony/symfony .`.
- 7. Log out from container with `exit` command.
- 8. Use `./console start` command to run other containers.
+ 4. Make sure, that `APP_PATH` directory is empty.
+ 5. Execute `./console create-project symfony/website-skeleton 4.*` to install project using composer`s create-project 
+    command. You can use different package name and version.
 
 ### Migrating existing project
  1. Change the `PROJECT_NAME` variable in both `.env-linux.dev` and `.env-macos.dev` files if you are working on multiple 
@@ -53,5 +50,6 @@ UID and GID your containers will have access to these files.
  * `./console stop [SERVICES...]` - stops all or selected Docker containers
  * `./console compose [ARGS...]` - wrapper for docker-compose commands
  * `./console install` - installs application
+ * `./console create-project PACKAGE_NAME [VERSION]` Creates project using composer command
  * `./console shell [--user USER] [--shell SHELL] SERVICE` - opens container's shell
  * `./console clean` - removes all images, containers and volumes associated with your project
