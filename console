@@ -161,7 +161,7 @@ function cmd_create_project()
     cmd_compose up -d php
     rm -rf $APP_PATH/$WEB_PATH
 
-    cmd_compose exec -u app php composer create-project "$@" .
+    cmd_compose exec -u app php composer create-project "$@"
     cmd_start
 }
 
