@@ -170,8 +170,8 @@ function cmd_clean()
     cmd_compose down
 
     for ID in `docker ps -a -q --filter "name=${PROJECT_NAME}_"`; do docker rm -f ${ID}; done
-    for ID in `docker images -q "${PROJECT_NAME}_*"`; do docker rmi -f ${ID}; done
-    for ID in `docker images -q "*/${PROJECT_NAME}_*"`; do docker rmi -f ${ID}; done
+    for ID in `docker images "${PROJECT_NAME}_*" --format "{{.Repository}}"`; do docker rmi -f ${ID}; done
+    for ID in `docker images "*/${PROJECT_NAME}_*" --format "{{.Repository}}"`; do docker rmi -f ${ID}; done
     for ID in `docker volume ls -q --filter "name=${PROJECT_NAME}_"`; do docker volume rm -f ${ID}; done
 }
 
