@@ -32,7 +32,7 @@ Docker boilerplate configuration for Symfony projects with fast NFS volumes on M
     projects to avoid name collisions. You can also change other variables depending on your needs.
  2. Set correct paths in `.env-*.dev` files if you want to use different location than the `/app` directory.
  4. Make sure, that `APP_PATH` directory is empty.
- 5. Execute `./console create-project symfony/website-skeleton 4.*` to install project using composer`s create-project 
+ 5. Execute `./console create-project symfony/website-skeleton . '4.*'` to install project using composer`s create-project 
     command. You can use different package name and version.
 
 ### Migrating existing project

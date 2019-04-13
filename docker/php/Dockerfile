@@ -1,4 +1,4 @@
-FROM mdobak/php-common-stack:7.2-fpm-alpine
+FROM mdobak/php-common-stack:7.3-fpm-alpine
 
 ARG uid
 ARG gid
@@ -16,12 +16,19 @@ RUN    addgroup -g ${gid} -S app \
         make \
         bash \
         sudo \
+        zip \
 # Composer
         zip \
         unzip \
         wget \
         curl \
         git \
+# Zip
+        libzip \
+        libzip-dev \
+        zlib-dev \
+# PHP extensions
+    && docker-php-ext-install zip \
 # Composer permissions
     && chmod 755 /usr/local/bin/composer \
     && chown app:app $COMPOSER_HOME \
